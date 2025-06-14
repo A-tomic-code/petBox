@@ -1,0 +1,5 @@
+pub const INITIAL_HUNGER: u32 = 0;
+pub const HUNGER_DECREASE: u32 = 10;
+pub const PLAY_HAPPINESS_INCREASE: u32 = 10;
+pub const HUNGER_INCREASE: u32 = 5;
+pub const INITIAL_HAPPINESS: u32 = 100;
