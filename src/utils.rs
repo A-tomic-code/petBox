@@ -3,19 +3,29 @@
 //! This module contains utility functions for input/output
 //! and console interface manipulation.
 
-use std::io::{self, Write};
-use std::process::Command;
+use super::constants;
+use crossterm::{
+    cursor, execute,
+    style::{Color, SetForegroundColor},
+    terminal::{Clear, ClearType},
+};
+
+use std::io::{self, stdout, Write};
+
+pub fn print_line(text: &str) {
+    execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
+    println!("{}", text);
+}
+
 pub fn clear_screen() {
-    // Command to clear the screen in Unix/Linux
-    if cfg!(target_os = "windows") {
-        Command::new("cmd")
-            .args(&["/C", "cls"])
-            .status()
-            .expect("Error clearing the screen");
-    } else {
-        print!("\x1B[2J\x1B[1;1H"); // Command for Unix systems
-    }
-    io::stdout().flush().unwrap();
+    execute!(
+        stdout(),
+        cursor::MoveToRow(2),
+        Clear(ClearType::FromCursorDown),
+        cursor::MoveTo(0, 0)
+    )
+    .unwrap();
+    stdout().flush().unwrap();
 }
 
 /// Reads a line of input from the user showing a prompt.
@@ -34,6 +44,7 @@ pub fn clear_screen() {
 /// let name = read_input("What is your name?");
 /// println!("Hello, {}!", name);
 /// ```
+
 pub fn read_input(prompt: &str) -> String {
     let mut input = String::new();
     println!("{}", prompt);
@@ -43,28 +54,24 @@ pub fn read_input(prompt: &str) -> String {
     input.trim().to_string()
 }
 pub fn print_menu(items: [&str; 3]) {
-    println!("\n--------------------------------\n");
-    println!("Select an option:\n");
-    println!("--------------------------------\n");
+    print_line("\n--------------------------------");
+    print_line("Select an option:");
+    print_line("--------------------------------");
+
     for (index, item) in items.iter().enumerate() {
-        println!("{}. {}\n", index + 1, item);
+        let option = format!("{}. {}", index + 1, item);
+        print_line(option.as_str());
     }
-    println!("--------------------------------\n")
-}
-pub fn choose_option(items: [&str; 3]) -> u32 {
-    let mut input = String::new();
-    print_menu(items);
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Error reading line");
-    input.trim().parse().expect("Please enter a valid number")
+
+    print_line("--------------------------------")
 }
 
-// Reads user input without a specific prompt given.
-pub fn read_from_user() -> String {
-    let mut input = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Error reading line");
-    input.trim().to_string()
+pub fn change_text_color(color: Color) {
+    execute!(stdout(), SetForegroundColor(color)).unwrap();
+}
+
+pub fn print_warning(text: &str) {
+    change_text_color(constants::WARNING_COLOR);
+    print_line(text);
+    change_text_color(constants::NORMAL_COLOR);
 }

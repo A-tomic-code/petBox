@@ -1,115 +1,117 @@
-//! # Tamagotchi Virtual Pet Simulator
-//!
-//! This is a virtual pet simulator based on the classic Tamagotchi game.
-//! The application allows the user to care for a virtual pet that has states
-//! of hunger and happiness that change over time.
-//!
-//! ## Architecture
-//!
-//! The program uses two threads:
-//! - **Main Thread**: Handles user input and actions
-//! - **Secondary Thread**: Updates the Tamagotchi state every second
-//!
-//! ## Modules
-//!
-//! - `constants`: Contains all game constants
-//! - `models`: Contains the structure and logic of the Tamagotchi  
-//! - `utils`: Utility functions for input/output
-
-use std::sync::{Arc, Mutex};
-use std::{thread, time};
+use std::{
+    io::{self, Write}, // Aquí importamos io y Write para usar stdout
+    sync::{Arc, Mutex},
+    thread,
+    time::Duration,
+};
 
 mod constants;
 mod models;
 mod utils;
 
+use crossterm::{
+    event::{self, KeyCode},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
+};
+use std::io::stdout;
+
 use models::tamagotchi::Tamagotchi;
 
-/// Main entry point of the Tamagotchi application.
-///
-/// This function:
-/// 1. Initializes the game and requests the pet's name
-/// 2. Creates a Tamagotchi shared among threads using Arc<Mutex<T>>
-/// 3. Spawns a secondary thread to update the state every second
-/// 4. Executes the main loop to handle user actions
 fn main() {
-    thread::sleep(time::Duration::from_secs(2));
-    utils::clear_screen();
+    // Crear un objeto stdout, que es el flujo estándar de salida
+    let mut stdout = stdout();
 
+    // Limpiar la pantalla
+    utils::clear_screen();
     println!("Welcome to Tamagotchi!");
 
     let pet_name = utils::read_input("Enter your Tamagotchi's name:");
     let tamagotchi = Arc::new(Mutex::new(Tamagotchi::new(pet_name)));
 
-    // Spawn a thread to handle the tick for the Tamagotchi
-    thread::spawn({
-        let tamagotchi = Arc::clone(&tamagotchi);
-        move || {
-            loop {
-                // Clear the screen to avoid cluttering the terminal
-                utils::clear_screen();
+    utils::change_text_color(constants::NORMAL_COLOR);
 
-                // Perform the tick (update the state) for the Tamagotchi
-                {
-                    let mut tamagotchi = tamagotchi.lock().unwrap();
-                    tamagotchi.tick();
-                    tamagotchi.print_state();
-                }
+    // Establecer el terminal en raw mode
+    stdout.execute(crossterm::cursor::EnableBlinking).unwrap();
+    stdout.execute(EnterAlternateScreen).unwrap(); // Entramos en el modo de pantalla alterna (opcional)
+    crossterm::terminal::enable_raw_mode().unwrap(); // Habilitar raw mode
 
-                // Print the menu (loop it every second)
-                utils::print_menu(constants::MAIN_MENU_OPTIONS);
-                thread::sleep(time::Duration::from_secs(1));
-            }
-        }
-    });
-
+    let mut last_tick = std::time::Instant::now();
     loop {
-        let action = utils::read_from_user();
+        // Verificar si ha pasado un segundo desde el último tick
+        if last_tick.elapsed() >= Duration::from_secs(1) {
+            last_tick = std::time::Instant::now();
+            let tamagotchi_clone = Arc::clone(&tamagotchi);
 
-        if handle_user_action(&action, &tamagotchi) {
-            break;
+            thread::spawn(move || {
+                // Hilo secundario para hacer el "tick"
+                thread::sleep(Duration::from_secs(1)); // El tick se hace cada segundo
+                let mut tamagotchi = tamagotchi_clone.lock().unwrap();
+                tamagotchi.tick(); // Actualiza el estado
+            });
         }
+
+        // Actualizar estado visual del Tamagotchi
+        {
+            let tamagotchi = tamagotchi.lock().unwrap();
+            utils::clear_screen();
+            tamagotchi.print_state();
+        }
+
+        // Imprimir las opciones de menú en la parte inferior
+        utils::print_menu(constants::MAIN_MENU_OPTIONS);
+
+        // Escuchar teclas sin bloquear
+        if handle_user_action(&tamagotchi) {
+            break; // Salir del juego si el usuario selecciona la opción de salir
+        }
+
+        // No dormir tanto, para capturar teclas rápidamente.
+        thread::sleep(Duration::from_millis(200)); // Se reduce el tiempo de espera.
     }
+
+    // Deshabilitar el raw mode y volver al modo normal del terminal
+    crossterm::terminal::disable_raw_mode().unwrap();
+    stdout.execute(LeaveAlternateScreen).unwrap(); // Salir del modo de pantalla alterna (opcional)
+
+    println!("Exiting the game...");
 }
 
-/// Handles user actions based on their input.
+/// Maneja las acciones del usuario basadas en la entrada de teclado.
 ///
-/// # Arguments
+/// # Argumentos
+/// * `tamagotchi` - Referencia al Tamagotchi compartido entre hilos
 ///
-/// * `action` - The action selected by the user as a string
-/// * `tamagotchi` - Reference to the Tamagotchi shared among threads
-///
-/// # Returns
-///
-/// * `bool` - `true` if the user wants to exit the game, `false` otherwise
-///
-/// # Available Actions
-///
-/// * "1" - Play with the Tamagotchi (increases happiness)
-/// * "2" - Feed the Tamagotchi (reduces hunger)  
-/// * "3" - Exit the game
-/// * Any other input - Displays an error message
-fn handle_user_action(action: &str, tamagotchi: &Arc<Mutex<Tamagotchi>>) -> bool {
-    match action {
-        "1" => {
-            // Action to play with the Tamagotchi
-            let mut tamagotchi = tamagotchi.lock().unwrap();
-            tamagotchi.play();
-            false
-        }
-        "2" => {
-            // Action to feed the Tamagotchi
-            let mut tamagotchi = tamagotchi.lock().unwrap();
-            tamagotchi.feed();
-            false
-        }
-        "3" => {
-            println!("Goodbye!");
-            true
-        }
-        _ => {
-            println!("Invalid option. Please try again.");
-            false
+/// # Retorna
+/// * `bool` - `true` si el usuario quiere salir del juego, `false` en caso contrario
+fn handle_user_action(tamagotchi: &Arc<Mutex<Tamagotchi>>) -> bool {
+    let mut should_exit = false;
+
+    // Usamos poll para escuchar las teclas sin bloquear
+    if event::poll(Duration::from_millis(50)).unwrap() {
+        // Reducir el retardo aquí también
+        if let event::Event::Key(event) = event::read().unwrap() {
+            match event.code {
+                KeyCode::Char('1') => {
+                    // Acción para jugar con el Tamagotchi
+                    let mut tamagotchi = tamagotchi.lock().unwrap();
+                    tamagotchi.play();
+                }
+                KeyCode::Char('2') => {
+                    // Acción para alimentar al Tamagotchi
+                    let mut tamagotchi = tamagotchi.lock().unwrap();
+                    tamagotchi.feed();
+                }
+                KeyCode::Char('3') => {
+                    // Acción para salir del juego
+                    should_exit = true;
+                }
+                _ => {
+                    // Ignorar otras teclas
+                }
+            }
         }
     }
+
+    should_exit
 }

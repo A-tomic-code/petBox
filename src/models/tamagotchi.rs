@@ -9,13 +9,20 @@ use super::super::constants::{
     PLAY_HAPPINESS_INCREASE,
 };
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use super::super::utils::{print_line, print_warning};
+
+use crossterm::{
+    execute,
+    style::{Color, SetForegroundColor},
+};
+
+use std::io::stdout;
 
 #[derive(Clone)]
 pub struct Tamagotchi {
     pub name: String,
-    pub happiness: u32,
-    pub hunger: u32,
+    pub happiness: u8,
+    pub hunger: u8,
 }
 
 impl Tamagotchi {
@@ -86,7 +93,8 @@ impl Tamagotchi {
     /// - A hungry pet gradually loses happiness
     pub fn tick(&mut self) {
         if self.hunger > HUNGER_WARNING {
-            println!("{} is hungry!", self.name);
+            // Show alert if the pet is hungry
+            print_warning(format!("{} is hungry!", self.name).as_str());
             self.happiness = if self.happiness >= HAPPINESS_DECREASE {
                 self.happiness - HAPPINESS_DECREASE
             } else {
@@ -113,9 +121,10 @@ impl Tamagotchi {
     /// Hunger: [value]
     /// ```
     pub fn print_state(&self) {
-        println!("\n Status of {}", self.name);
-        println!("--------------------------------\n");
-        println!("Happiness: {}", self.happiness);
-        println!("Hunger: {}", self.hunger);
+        print_line(format!("Status of {}", self.name).as_str());
+
+        print_line("--------------------------------");
+        print_line(format!("Happiness: {}", self.happiness).as_str());
+        print_line(format!("Hunger: {}", self.hunger).as_str());
     }
 }
