@@ -15,7 +15,6 @@ use std::io::{self, stdout, Write};
 pub fn print_line(text: &str) {
     execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
     println!("{}", text);
-    execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
 
     stdout().flush().unwrap();
 }
