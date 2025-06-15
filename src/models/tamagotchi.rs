@@ -23,35 +23,19 @@ pub struct Tamagotchi {
     pub name: String,
     pub happiness: u8,
     pub hunger: u8,
+    pub notifications: Vec<&'a str>,
 }
 
 impl Tamagotchi {
-    /// Creates a new Tamagotchi with initial values.
-    ///
-    /// # Arguments
-    ///
-    /// * `name` - The name the user wants to give their pet
-    ///
-    /// # Returns
-    ///
-    /// * `Self` - A new instance of Tamagotchi with maximum happiness and minimum hunger
     pub fn new(name: String) -> Self {
         Tamagotchi {
             name,
             happiness: INITIAL_HAPPINESS,
             hunger: INITIAL_HUNGER,
+            notifications: Vec::new(),
         }
     }
 
-    /// Playing with the Tamagotchi increases its happiness.
-    ///
-    /// This action:
-    /// - Increases happiness by `PLAY_HAPPINESS_INCREASE` points
-    /// - Can slightly increase hunger if below the threshold
-    ///
-    /// # Side Effects
-    ///
-    /// Prints a message indicating the pet is playing.
     pub fn play(&mut self) {
         println!("{} is playing!", self.name);
 
@@ -61,15 +45,6 @@ impl Tamagotchi {
         }
     }
 
-    /// Feeding the Tamagotchi reduces its hunger level.
-    ///
-    /// This action:
-    /// - Reduces hunger by `HUNGER_DECREASE_BIG` points
-    /// - Hunger cannot go below 0
-    ///
-    /// # Side Effects
-    ///
-    /// Prints a message indicating the pet is eating.
     pub fn feed(&mut self) {
         println!("{} is eating!", self.name);
 
@@ -80,21 +55,15 @@ impl Tamagotchi {
         };
     }
 
-    /// Updates the state of the Tamagotchi over time.
-    ///
-    /// This method is called automatically every second and:
-    /// - Increases hunger by `HUNGER_INCREASE_SMALL`
-    /// - If hunger exceeds `HUNGER_WARNING`, happiness decreases
-    /// - Shows an alert if the pet is hungry
-    ///
-    /// # Mechanics
-    ///
-    /// - Hunger continuously increases over time
-    /// - A hungry pet gradually loses happiness
     pub fn tick(&mut self) {
-        if self.hunger > HUNGER_WARNING {
+        // Clear notifications
+        self.notifications.clear();
+        
+        // if self.hunger > HUNGER_WARNING {
+        if self.hunger > 2 {
             // Show alert if the pet is hungry
-            print_warning(format!("{} is hungry!", self.name).as_str());
+            self.notifications
+                .push("Your Tamagotchi is hungry!");
             self.happiness = if self.happiness >= HAPPINESS_DECREASE {
                 self.happiness - HAPPINESS_DECREASE
             } else {
@@ -105,26 +74,18 @@ impl Tamagotchi {
         self.hunger += HUNGER_INCREASE_SMALL;
     }
 
-    /// Displays the current state of the Tamagotchi in the console.
-    ///
-    /// It prints formatted:
-    /// - The name of the pet
-    /// - Its current happiness level  
-    /// - Its current hunger level
-    ///
-    /// # Output Format
-    ///
-    /// ```text
-    /// Status of [name]
-    /// --------------------------------
-    /// Happiness: [value]
-    /// Hunger: [value]
-    /// ```
     pub fn print_state(&self) {
+        print_line("--------------------------------");
         print_line(format!("Status of {}", self.name).as_str());
-
         print_line("--------------------------------");
         print_line(format!("Happiness: {}", self.happiness).as_str());
         print_line(format!("Hunger: {}", self.hunger).as_str());
+    }
+
+    pub fn print_notifications(&mut self) {
+        for notification in self.notifications.iter() {
+            print_line(&format!("⚠️ {}", notification));
+        }
+
     }
 }

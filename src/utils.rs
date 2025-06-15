@@ -15,35 +15,20 @@ use std::io::{self, stdout, Write};
 pub fn print_line(text: &str) {
     execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
     println!("{}", text);
+    execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
+
+    stdout().flush().unwrap();
 }
 
 pub fn clear_screen() {
     execute!(
         stdout(),
-        cursor::MoveToRow(2),
         Clear(ClearType::FromCursorDown),
         cursor::MoveTo(0, 0)
     )
     .unwrap();
     stdout().flush().unwrap();
 }
-
-/// Reads a line of input from the user showing a prompt.
-///
-/// # Arguments
-///
-/// * `prompt` - The message shown to the user before waiting for input
-///
-/// # Returns
-///
-/// * `String` - The user's input trimmed of leading/trailing whitespace
-///
-/// # Example
-///
-/// ```
-/// let name = read_input("What is your name?");
-/// println!("Hello, {}!", name);
-/// ```
 
 pub fn read_input(prompt: &str) -> String {
     let mut input = String::new();
@@ -54,7 +39,7 @@ pub fn read_input(prompt: &str) -> String {
     input.trim().to_string()
 }
 pub fn print_menu(items: [&str; 3]) {
-    print_line("\n--------------------------------");
+    print_line("--------------------------------");
     print_line("Select an option:");
     print_line("--------------------------------");
 
