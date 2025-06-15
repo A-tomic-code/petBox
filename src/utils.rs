@@ -60,21 +60,21 @@ pub fn change_text_color(color: Color) {
 
 pub fn print_warning(text: &str) {
     change_text_color(constants::WARNING_COLOR);
-    let txt = format!("⚠️ {}", text);
+    let txt = format!("⚠️  {}", text);
     print_line(txt.as_str());
     change_text_color(constants::NORMAL_COLOR);
 }
 
 pub fn print_error(text: &str) {
     change_text_color(constants::DANGER_COLOR);
-    let txt = format!("❌ {}", text);
+    let txt = format!("❌  {}", text);
     print_line(txt.as_str());
     change_text_color(constants::NORMAL_COLOR);
 }
 
 pub fn print_info(text: &str) {
     change_text_color(constants::INFO_COLOR);
-    let txt = format!("ℹ️ {}", text);
+    let txt = format!("ℹ️  {}", text);
     print_line(txt.as_str());
     change_text_color(constants::NORMAL_COLOR);
 }

@@ -6,6 +6,7 @@ pub struct Notification {
     pub timestamp: Instant,
     pub level: NotificationLevel,
     pub removable: bool,
+    pub key: Option<String>,
 }
 
 #[derive(Clone)]
@@ -17,11 +18,26 @@ pub enum NotificationLevel {
 
 impl Notification {
     pub fn new(message: String, level: NotificationLevel) -> Self {
-        Notification {
+        Self {
             message,
-            timestamp: Instant::now(),
             level,
+            timestamp: Instant::now(),
             removable: true,
+            key: None,
+        }
+    }
+
+    pub fn with_key(message: String, level: NotificationLevel, key: &str) -> Self {
+        Self {
+            message,
+            level,
+            timestamp: Instant::now(),
+            removable: true,
+            key: Some(key.to_string()),
         }
     }
 }
+
+pub const NOTIFICATION_HUNGER_WARNING: &str = "hunger_warning";
+pub const NOTIFICATION_EATING_INFO: &str = "eating_info";
+pub const NOTIFICATION_PLAYING_INFO: &str = "playing_info";

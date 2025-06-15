@@ -18,11 +18,10 @@ use std::io::stdout;
 
 fn main() {
     let mut stdout = stdout();
-
     // Limpiar la pantalla
     utils::clear_screen();
-    // println!("Welcome to Tamagotchi!");
 
+    // println!("Welcome to PetBox!");
     // let pet_name = utils::read_input("Enter your Tamagotchi's name:");
 
     let pet_name = "Tamagotchi".to_string();
@@ -60,6 +59,8 @@ fn main() {
 
         thread::sleep(Duration::from_millis(200));
     }
+
+    utils::print_error("Game Over!");
 
     crossterm::terminal::disable_raw_mode().unwrap();
     stdout.execute(LeaveAlternateScreen).unwrap();

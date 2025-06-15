@@ -4,16 +4,19 @@
 //! related to the behavior of the virtual pet.
 
 use super::super::constants::{
-    HAPPINESS_DECREASE, HUNGER_DECREASE_BIG, HUNGER_DECREASE_SMALL, HUNGER_INCREASE_BIG,
-    HUNGER_INCREASE_SMALL, HUNGER_WARNING, INFO_COLOR, INITIAL_HAPPINESS, INITIAL_HUNGER,
-    PLAY_HAPPINESS_INCREASE,
+    HAPPINESS_DECREASE, HUNGER_DECREASE_BIG, HUNGER_INCREASE_BIG, HUNGER_INCREASE_SMALL,
+    HUNGER_WARNING, INITIAL_HAPPINESS, INITIAL_HUNGER, MAX_HAPPINESS, MAX_HUNGER,
+    NOTIFICATION_DURATION, PLAY_HAPPINESS_INCREASE,
 };
 
 use super::super::utils;
 
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
-use super::notification::{Notification, NotificationLevel};
+use super::notification::{
+    Notification, NotificationLevel, NOTIFICATION_EATING_INFO, NOTIFICATION_HUNGER_WARNING,
+    NOTIFICATION_PLAYING_INFO,
+};
 
 #[derive(Clone)]
 pub struct Tamagotchi {
@@ -34,56 +37,57 @@ impl Tamagotchi {
     }
 
     pub fn play(&mut self) {
-        self.notifications.push(Notification::new(
+        let notification = Notification::with_key(
             format!("{} is playing!", self.name),
             NotificationLevel::Info,
-        ));
+            NOTIFICATION_PLAYING_INFO,
+        );
 
-        self.happiness += PLAY_HAPPINESS_INCREASE;
-        if self.hunger < HUNGER_DECREASE_BIG {
-            self.hunger += HUNGER_INCREASE_BIG;
-        }
+        self.add_notification(notification);
+
+        self.add_happiness(PLAY_HAPPINESS_INCREASE);
+        self.add_hunger(HUNGER_INCREASE_BIG);
     }
 
     pub fn feed(&mut self) {
-        self.notifications.push(Notification::new(
+        let notification = Notification::with_key(
             format!("{} is eating!", self.name),
             NotificationLevel::Info,
-        ));
+            NOTIFICATION_EATING_INFO,
+        );
 
-        self.hunger = if self.hunger >= HUNGER_INCREASE_BIG {
-            self.hunger - HUNGER_DECREASE_BIG
-        } else {
-            0
-        };
+        self.add_notification(notification);
+        self.sub_hunger(HUNGER_DECREASE_BIG);
     }
 
     pub fn tick(&mut self) {
-        let hungry = self.hunger >= 20;
+        let hungry = self.hunger >= HUNGER_WARNING;
 
         if hungry {
-            // Buscar si ya existe la notificación de hambre
-            if let Some(existing) = self
-                .notifications
-                .iter_mut()
-                .find(|n| n.message.contains("is hungry!"))
-            {
-                // Ya existe, solo actualizamos el timestamp
-                existing.timestamp = std::time::Instant::now();
-            } else {
-                // No existe, la creamos
-                self.notifications.push(Notification::new(
-                    format!("{} is hungry!", self.name),
-                    NotificationLevel::Warning,
-                ));
+            let notification = Notification::with_key(
+                format!("{} is hungry!", self.name),
+                NotificationLevel::Warning,
+                NOTIFICATION_HUNGER_WARNING,
+            );
 
-                // Penalización por hambre
-                self.happiness = self.happiness.saturating_sub(HAPPINESS_DECREASE);
-            }
+            self.add_notification(notification);
+            self.sub_happiness(HAPPINESS_DECREASE);
         }
 
         // Siempre aumenta el hambre un poco
-        self.hunger += HUNGER_INCREASE_SMALL;
+        self.add_hunger(HUNGER_INCREASE_SMALL);
+    }
+
+    pub fn add_notification(&mut self, notification: Notification) {
+        if let Some(existing) = self
+            .notifications
+            .iter_mut()
+            .find(|n| n.key == notification.key)
+        {
+            existing.timestamp = Instant::now();
+        } else {
+            self.notifications.push(notification);
+        }
     }
 
     pub fn print_state(&self) {
@@ -95,9 +99,9 @@ impl Tamagotchi {
     }
 
     pub fn print_notifications(&mut self) {
-
-        self.notifications
-            .retain(|n| n.timestamp.elapsed() < Duration::from_secs(5) && n.removable);
+        self.notifications.retain(|n| {
+            n.timestamp.elapsed() < Duration::from_secs(NOTIFICATION_DURATION) && n.removable
+        });
 
         // Imprime las que quedan
         for notification in &self.notifications {
@@ -107,5 +111,28 @@ impl Tamagotchi {
                 NotificationLevel::Error => utils::print_error(notification.message.as_str()),
             }
         }
+    }
+
+    fn add_hunger(&mut self, amount: u8) {
+        self.hunger = Self::add_stat(self.hunger, amount, MAX_HUNGER);
+    }
+    fn sub_hunger(&mut self, amount: u8) {
+        self.hunger = Self::sub_stat(self.hunger, amount, 0);
+    }
+
+    fn add_happiness(&mut self, amount: u8) {
+        self.happiness = Self::add_stat(self.happiness, amount, MAX_HAPPINESS);
+    }
+
+    fn sub_happiness(&mut self, amount: u8) {
+        self.happiness = Self::sub_stat(self.happiness, amount, 0);
+    }
+
+    fn add_stat(current: u8, amount: u8, max: u8) -> u8 {
+        (current.saturating_add(amount)).min(max)
+    }
+
+    fn sub_stat(current: u8, amount: u8, min: u8) -> u8 {
+        (current.saturating_sub(amount)).max(min)
     }
 }
