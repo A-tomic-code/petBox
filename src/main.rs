@@ -54,7 +54,7 @@ fn main() {
         // Actualizar estado visual del Tamagotchi
         {
             let tamagotchi = tamagotchi.lock().unwrap();
-            utils::clear_screen();
+            utils::clear_game_area();
             tamagotchi.print_state();
         }
 

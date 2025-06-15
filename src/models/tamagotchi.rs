@@ -73,7 +73,7 @@ impl Tamagotchi {
     pub fn feed(&mut self) {
         println!("{} is eating!", self.name);
 
-        self.hunger = if self.hunger >= HUNGER_INCREASE_BIG {
+        self.hunger = if self.hunger >= HUNGER_DECREASE_BIG {
             self.hunger - HUNGER_DECREASE_BIG
         } else {
             0
