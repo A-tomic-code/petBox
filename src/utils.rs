@@ -13,9 +13,12 @@ use crossterm::{
 use std::io::{self, stdout, Write};
 
 pub fn print_line(text: &str) {
-    execute!(std::io::stdout(), cursor::MoveToNextLine(0)).unwrap();
+    execute!(
+        std::io::stdout(),
+        cursor::MoveToNextLine(0),
+        Clear(ClearType::CurrentLine)
+    ).unwrap();
     println!("{}", text);
-
     stdout().flush().unwrap();
 }
 
