@@ -40,14 +40,10 @@ cargo run
 ```
 ### How to Play
 - Start: Enter the name of your Tamagotchi.
-
 - Main Menu: You will see three options:
-
-  - 1 - Play with your Tamagotchi
-
-  - 2 - Feed your Tamagotchi
-
-  - 3 - Exit the game
+  1. Play with your Tamagotchi
+  2. Feed your Tamagotchi
+  3. Exit the game
 
 - State: Your pet's state updates automatically every second.
 
@@ -56,19 +52,13 @@ cargo run
 ## Game Mechanics
 ### States
 - Happiness: Starts at 100, decreases when the Tamagotchi gets very hungry.
-
 - Hunger: Starts at 0, gradually increases over time.
-
 ### Actions
 - Play: Increases happiness by 10 points and may slightly increase hunger.
-
-- Feed: Reduces hunger by 10 points.
-
+- Feed: Reduces hunger by 10 points
 - Time: Every second, hunger increases by 1 point.
-
 ### Alerts
 - When hunger exceeds 80 points, your Tamagotchi will be hungry, and its happiness will begin to decrease.
-
 ### Configuration
 You can modify the game's values by editing the constants in src/constants.rs:
 ```
@@ -78,43 +68,28 @@ pub const HUNGER_WARNING: u32 = 80;         // Critical hunger threshold
 pub const PLAY_HAPPINESS_INCREASE: u32 = 10; // Happiness increase from playing
 // ... more constants
 ```
-
 ## Technical Architecture
 ### Concurrency
 The project uses Arc<Mutex<T>> to safely share the Tamagotchi state between threads:
-
 Main thread: Handles user input.
-
 Secondary thread: Updates the state every second and displays the interface.
-
 ### Modules
 - models::tamagotchi: Contains the Tamagotchi structure and its methods.
 - utils: Utility functions for input/output.
 - constants: Game constant values.
-
 ### Contributing
 If you want to contribute to the project:
-
 - Fork the repository
-
 - Create a branch for your feature (git checkout -b new-feature)
-
 - Commit your changes (git commit -am 'Add new feature')
-
 - Push to the branch (git push origin new-feature)
-
 - Create a Pull Request
 ### Future Improvements
 - Save/load system
-
 - Multiple food types
-
 - Different play activities
-
 - Aging system
-
 - Graphical interface
-
 - Sounds and effects
 
 ### License
