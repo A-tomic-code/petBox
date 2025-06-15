@@ -41,3 +41,5 @@ impl Notification {
 pub const NOTIFICATION_HUNGER_WARNING: &str = "hunger_warning";
 pub const NOTIFICATION_EATING_INFO: &str = "eating_info";
 pub const NOTIFICATION_PLAYING_INFO: &str = "playing_info";
+pub const NOTIFICATION_HEALTH_WARNING: &str = "health_warning";
+pub const NOTIFICATION_HAPPINESS_WARNING: &str = "happiness_warning";

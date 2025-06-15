@@ -4,9 +4,10 @@
 //! related to the behavior of the virtual pet.
 
 use super::super::constants::{
-    HAPPINESS_DECREASE, HUNGER_DECREASE_BIG, HUNGER_INCREASE_BIG, HUNGER_INCREASE_SMALL,
-    HUNGER_WARNING, INITIAL_HAPPINESS, INITIAL_HUNGER, MAX_HAPPINESS, MAX_HUNGER,
-    NOTIFICATION_DURATION, PLAY_HAPPINESS_INCREASE,
+    HAPPINESS_DECREASE, HAPPINESS_INCREASE, HAPPINESS_WARNING, HEALTH_DECREASE, HEALTH_INCREASE,
+    HEALTH_WARNING, HUNGER_DECREASE_BIG, HUNGER_INCREASE_BIG, HUNGER_INCREASE_SMALL,
+    HUNGER_WARNING, INITIAL_HAPPINESS, INITIAL_HEALTH, INITIAL_HUNGER, MAX_HAPPINESS, MAX_HEALTH,
+    MAX_HUNGER, NOTIFICATION_DURATION,
 };
 
 use super::super::utils;
@@ -14,13 +15,14 @@ use super::super::utils;
 use std::time::{Duration, Instant};
 
 use super::notification::{
-    Notification, NotificationLevel, NOTIFICATION_EATING_INFO, NOTIFICATION_HUNGER_WARNING,
-    NOTIFICATION_PLAYING_INFO,
+    Notification, NotificationLevel, NOTIFICATION_EATING_INFO, NOTIFICATION_HAPPINESS_WARNING,
+    NOTIFICATION_HEALTH_WARNING, NOTIFICATION_HUNGER_WARNING, NOTIFICATION_PLAYING_INFO,
 };
 
 #[derive(Clone)]
 pub struct Tamagotchi {
     pub name: String,
+    pub health: u8,
     pub happiness: u8,
     pub hunger: u8,
     pub notifications: Vec<Notification>,
@@ -30,6 +32,7 @@ impl Tamagotchi {
     pub fn new(name: String) -> Self {
         Tamagotchi {
             name,
+            health: INITIAL_HEALTH,
             happiness: INITIAL_HAPPINESS,
             hunger: INITIAL_HUNGER,
             notifications: Vec::new(),
@@ -45,7 +48,7 @@ impl Tamagotchi {
 
         self.add_notification(notification);
 
-        self.add_happiness(PLAY_HAPPINESS_INCREASE);
+        self.add_happiness(HAPPINESS_INCREASE);
         self.add_hunger(HUNGER_INCREASE_BIG);
     }
 
@@ -62,6 +65,8 @@ impl Tamagotchi {
 
     pub fn tick(&mut self) {
         let hungry = self.hunger >= HUNGER_WARNING;
+        let sad = self.happiness <= HAPPINESS_WARNING;
+        let sick = self.health <= HEALTH_WARNING;
 
         if hungry {
             let notification = Notification::with_key(
@@ -72,6 +77,33 @@ impl Tamagotchi {
 
             self.add_notification(notification);
             self.sub_happiness(HAPPINESS_DECREASE);
+            self.sub_health(HEALTH_INCREASE);
+        }
+
+        if sad {
+            let notification = Notification::with_key(
+                format!("{} is sad!", self.name),
+                NotificationLevel::Warning,
+                NOTIFICATION_HAPPINESS_WARNING,
+            );
+            self.add_notification(notification);
+
+            self.sub_health(HAPPINESS_DECREASE);
+        }
+
+        if sick {
+            let notification = Notification::with_key(
+                format!("{} is sick!", self.name),
+                NotificationLevel::Warning,
+                NOTIFICATION_HEALTH_WARNING,
+            );
+            self.add_notification(notification);
+
+            self.sub_happiness(HAPPINESS_DECREASE);
+        }
+
+        if !hungry && !sad {
+            self.add_health(HAPPINESS_INCREASE);
         }
 
         // Siempre aumenta el hambre un poco
@@ -96,6 +128,7 @@ impl Tamagotchi {
         utils::print_line("--------------------------------");
         utils::print_line(format!("Happiness: {}", self.happiness).as_str());
         utils::print_line(format!("Hunger: {}", self.hunger).as_str());
+        utils::print_line(format!("Health: {}", self.health).as_str());
     }
 
     pub fn print_notifications(&mut self) {
@@ -126,6 +159,14 @@ impl Tamagotchi {
 
     fn sub_happiness(&mut self, amount: u8) {
         self.happiness = Self::sub_stat(self.happiness, amount, 0);
+    }
+
+    fn add_health(&mut self, amount: u8) {
+        self.health = Self::add_stat(self.health, amount, MAX_HEALTH);
+    }
+
+    fn sub_health(&mut self, amount: u8) {
+        self.health = Self::sub_stat(self.health, amount, 0);
     }
 
     fn add_stat(current: u8, amount: u8, max: u8) -> u8 {
