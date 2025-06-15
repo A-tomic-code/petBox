@@ -20,8 +20,9 @@ pub fn print_line(text: &str) {
 pub fn clear_screen() {
     execute!(
         stdout(),
-        cursor::MoveTo(0, 4),
-        Clear(ClearType::FromCursorDown)
+        cursor::MoveToRow(2),
+        Clear(ClearType::FromCursorDown),
+        cursor::MoveTo(0, 0)
     )
     .unwrap();
     stdout().flush().unwrap();
@@ -71,17 +72,6 @@ pub fn change_text_color(color: Color) {
 
 pub fn print_warning(text: &str) {
     change_text_color(constants::WARNING_COLOR);
-    execute!(stdout(), cursor::MoveTo(0, 1)).unwrap();
-    println!("⚠️  {}", text);
+    print_line(text);
     change_text_color(constants::NORMAL_COLOR);
-}
-
-pub fn clear_game_area() {
-    execute!(
-        stdout(),
-        cursor::MoveTo(0, 4),
-        Clear(ClearType::FromCursorDown)
-    )
-    .unwrap();
-    stdout().flush().unwrap();
 }
