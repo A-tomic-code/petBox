@@ -23,7 +23,7 @@ pub struct Tamagotchi {
     pub name: String,
     pub happiness: u8,
     pub hunger: u8,
-    pub notifications: Vec<&'a str>,
+    pub notifications: Vec<String>,
 }
 
 impl Tamagotchi {
@@ -61,9 +61,8 @@ impl Tamagotchi {
         
         // if self.hunger > HUNGER_WARNING {
         if self.hunger > 2 {
-            // Show alert if the pet is hungry
             self.notifications
-                .push("Your Tamagotchi is hungry!");
+                .push("Your Tamagotchi is hungry!".to_string());
             self.happiness = if self.happiness >= HAPPINESS_DECREASE {
                 self.happiness - HAPPINESS_DECREASE
             } else {
