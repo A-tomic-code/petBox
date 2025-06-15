@@ -17,33 +17,13 @@ use crossterm::{
 };
 
 use std::io::stdout;
-use std::time::{Duration, Instant};
-
-#[derive(Clone)]
-pub struct Notification {
-    pub message: String,
-    pub timestamp: Instant,
-}
-
-impl Notification {
-    pub fn new(message: String) -> Self {
-        Notification {
-            message,
-            timestamp: Instant::now(),
-        }
-    }
-
-    pub fn is_expired(&self) -> bool {
-        self.timestamp.elapsed() >= Duration::from_secs(5)
-    }
-}
 
 #[derive(Clone)]
 pub struct Tamagotchi {
     pub name: String,
     pub happiness: u8,
     pub hunger: u8,
-    pub notifications: Vec<Notification>,
+    pub notifications: Vec<String>,
 }
 
 impl Tamagotchi {
@@ -57,7 +37,7 @@ impl Tamagotchi {
     }
 
     pub fn play(&mut self) {
-        self.notifications.push(Notification::new(format!("{} is playing!", self.name)));
+        self.notifications.push(format!("{} is playing!", self.name));
 
         self.happiness += PLAY_HAPPINESS_INCREASE;
         if self.hunger < HUNGER_DECREASE_BIG {
@@ -66,7 +46,7 @@ impl Tamagotchi {
     }
 
     pub fn feed(&mut self) {
-        self.notifications.push(Notification::new(format!("{} is eating!", self.name)));
+        self.notifications.push(format!("{} is eating!", self.name));
 
         self.hunger = if self.hunger >= HUNGER_INCREASE_BIG {
             self.hunger - HUNGER_DECREASE_BIG
@@ -76,13 +56,13 @@ impl Tamagotchi {
     }
 
     pub fn tick(&mut self) {
-        // Remove expired notifications (older than 5 seconds)
-        self.notifications.retain(|notification| !notification.is_expired());
+        // Clear notifications
+        self.notifications.clear();
         
         // if self.hunger > HUNGER_WARNING {
         if self.hunger > 2 {
             self.notifications
-                .push(Notification::new("Your Tamagotchi is hungry!".to_string()));
+                .push("Your Tamagotchi is hungry!".to_string());
             self.happiness = if self.happiness >= HAPPINESS_DECREASE {
                 self.happiness - HAPPINESS_DECREASE
             } else {
@@ -101,13 +81,10 @@ impl Tamagotchi {
         print_line(format!("Hunger: {}", self.hunger).as_str());
     }
 
-    pub fn clean_expired_notifications(&mut self) {
-        self.notifications.retain(|notification| !notification.is_expired());
-    }
-
     pub fn print_notifications(&mut self) {
         for notification in self.notifications.iter() {
-            print_line(&format!("⚠️ {}", notification.message));
+            print_line(&format!("⚠️ {}", notification));
         }
+
     }
 }
