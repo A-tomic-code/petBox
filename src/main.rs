@@ -36,6 +36,7 @@ fn main() {
     crossterm::terminal::enable_raw_mode().unwrap(); // Habilitar raw mode
 
     let mut last_tick = std::time::Instant::now();
+    let mut last_notification_print = std::time::Instant::now()
     loop {
         if last_tick.elapsed() >= Duration::from_secs(1) {
             last_tick = std::time::Instant::now();

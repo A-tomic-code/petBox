@@ -37,7 +37,7 @@ impl Tamagotchi {
     }
 
     pub fn play(&mut self) {
-        println!("{} is playing!", self.name);
+        self.notifications.push(format!("{} is playing!", self.name));
 
         self.happiness += PLAY_HAPPINESS_INCREASE;
         if self.hunger < HUNGER_DECREASE_BIG {
@@ -46,7 +46,7 @@ impl Tamagotchi {
     }
 
     pub fn feed(&mut self) {
-        println!("{} is eating!", self.name);
+        self.notifications.push(format!("{} is eating!", self.name));
 
         self.hunger = if self.hunger >= HUNGER_INCREASE_BIG {
             self.hunger - HUNGER_DECREASE_BIG
