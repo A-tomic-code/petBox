@@ -8,6 +8,9 @@ mod utils;
 use models::tamagotchi::Tamagotchi;
 
 fn main() {
+    thread::sleep(time::Duration::from_secs(2));
+    utils::clear_screen();
+
     println!("Bienvenido a Tamagotchi!");
 
     let pet_name = utils::read_input("Introduce el nombre de tu Tamagotchi:");
@@ -30,34 +33,41 @@ fn main() {
 
                 // Print the menu (loop it every second)
                 utils::print_menu(constants::MAIN_MENU_OPTIONS);
-                thread::sleep(time::Duration::from_secs(2));
+                thread::sleep(time::Duration::from_secs(1));
             }
         }
     });
 
-    // Main loop to interact with the user
     loop {
-        // Ask for user input without blocking the secondary thread
         let action = utils::read_from_user();
 
-        match action.as_str() {
-            "1" => {
-                // Action to play with the Tamagotchi
-                let mut tamagotchi = tamagotchi.lock().unwrap();
-                tamagotchi.play();
-            }
-            "2" => {
-                // Action to feed the Tamagotchi
-                let mut tamagotchi = tamagotchi.lock().unwrap();
-                tamagotchi.feed();
-            }
-            "3" => {
-                println!("¡Adiós!");
-                break;
-            }
-            _ => println!("Opción no válida. Inténtalo de nuevo."),
+        if handle_user_action(&action, &tamagotchi) {
+            break;
         }
     }
-
 }
 
+fn handle_user_action(action: &str, tamagotchi: &Arc<Mutex<Tamagotchi>>) -> bool {
+    match action {
+        "1" => {
+            // Action to play with the Tamagotchi
+            let mut tamagotchi = tamagotchi.lock().unwrap();
+            tamagotchi.play();
+            false
+        }
+        "2" => {
+            // Action to feed the Tamagotchi
+            let mut tamagotchi = tamagotchi.lock().unwrap();
+            tamagotchi.feed();
+            false
+        }
+        "3" => {
+            println!("¡Adiós!");
+            true
+        }
+        _ => {
+            println!("Opción no válida. Inténtalo de nuevo.");
+            false
+        }
+    }
+}
