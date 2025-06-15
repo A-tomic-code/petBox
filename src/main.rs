@@ -36,17 +36,13 @@ fn main() {
     crossterm::terminal::enable_raw_mode().unwrap(); // Habilitar raw mode
 
     let mut last_tick = std::time::Instant::now();
-    let mut last_notification_print = std::time::Instant::now()
     loop {
         if last_tick.elapsed() >= Duration::from_secs(1) {
             last_tick = std::time::Instant::now();
             let tamagotchi_clone = Arc::clone(&tamagotchi);
 
-            thread::spawn(move || {
-                thread::sleep(Duration::from_secs(1));
-                let mut tamagotchi = tamagotchi_clone.lock().unwrap();
-                tamagotchi.tick();
-            });
+            let mut tamagotchi = tamagotchi_clone.lock().unwrap();
+            tamagotchi.tick();
         }
 
         {
@@ -62,7 +58,7 @@ fn main() {
             break;
         }
 
-        thread::sleep(Duration::from_millis(200)); // Se reduce el tiempo de espera.
+        thread::sleep(Duration::from_millis(200));
     }
 
     crossterm::terminal::disable_raw_mode().unwrap();

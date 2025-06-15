@@ -59,4 +59,5 @@ pub const MAIN_MENU_OPTIONS: [&str; 3] = ["Play", "Feed", "Exit"];
 
 pub const DANGER_COLOR: Color = Color::DarkRed;
 pub const WARNING_COLOR: Color = Color::Yellow;
+pub const INFO_COLOR: Color = Color::Cyan;
 pub const NORMAL_COLOR: Color = Color::Green;

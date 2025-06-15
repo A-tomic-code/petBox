@@ -17,7 +17,8 @@ pub fn print_line(text: &str) {
         std::io::stdout(),
         cursor::MoveToNextLine(0),
         Clear(ClearType::CurrentLine)
-    ).unwrap();
+    )
+    .unwrap();
     println!("{}", text);
     stdout().flush().unwrap();
 }
@@ -59,6 +60,21 @@ pub fn change_text_color(color: Color) {
 
 pub fn print_warning(text: &str) {
     change_text_color(constants::WARNING_COLOR);
-    print_line(text);
+    let txt = format!("⚠️ {}", text);
+    print_line(txt.as_str());
+    change_text_color(constants::NORMAL_COLOR);
+}
+
+pub fn print_error(text: &str) {
+    change_text_color(constants::DANGER_COLOR);
+    let txt = format!("❌ {}", text);
+    print_line(txt.as_str());
+    change_text_color(constants::NORMAL_COLOR);
+}
+
+pub fn print_info(text: &str) {
+    change_text_color(constants::INFO_COLOR);
+    let txt = format!("ℹ️ {}", text);
+    print_line(txt.as_str());
     change_text_color(constants::NORMAL_COLOR);
 }
