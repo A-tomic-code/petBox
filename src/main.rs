@@ -1,5 +1,5 @@
-use std::sync::mpsc;
-use std::{io, process, thread, time};
+use std::sync::{Arc, Mutex};
+use std::{thread, time};
 
 mod constants;
 mod models;
@@ -11,49 +11,53 @@ fn main() {
     println!("Bienvenido a Tamagotchi!");
 
     let pet_name = utils::read_input("Introduce el nombre de tu Tamagotchi:");
-    let mut tamagotchi = Tamagotchi::new(pet_name);
+    let tamagotchi = Arc::new(Mutex::new(Tamagotchi::new(pet_name)));
 
-    // Create a channel for sending actions to the tamagotchi thread.
-    let (tx, rx) = mpsc::channel::<String>();
+    // Spawn a thread to handle the tick for the Tamagotchi
+    thread::spawn({
+        let tamagotchi = Arc::clone(&tamagotchi);
+        move || {
+            loop {
+                // Clear the screen to avoid cluttering the terminal
+                utils::clear_screen();
 
-    thread::spawn(move || {
-        loop {
-            utils::clear_screen();
-            println!("\nEstado actual de {}:", tamagotchi.name);
-            println!("Felicidad: {}", tamagotchi.happiness);
-            println!("Hambre: {}", tamagotchi.hunger);
-            println!("--------------------------------");
+                // Perform the tick (update the state) for the Tamagotchi
+                {
+                    let mut tamagotchi = tamagotchi.lock().unwrap();
+                    tamagotchi.tick();
+                    tamagotchi.print_state();
+                }
 
-            tamagotchi.tick();
-            thread::sleep(time::Duration::from_secs(1));
-
-            // Check for actions from the main thread.
-            match rx.try_recv() {
-                Ok(action) => match action.as_str() {
-                    "1" => tamagotchi.play(),
-                    "2" => tamagotchi.feed(),
-                    "3" => {
-                        println!("¡Adiós!");
-                        process::exit(0);
-                    }
-                    _ => println!("Opción no válida."),
-                },
-                Err(_) => {} // No action received, continue looping.
+                // Print the menu (loop it every second)
+                utils::print_menu(constants::MAIN_MENU_OPTIONS);
+                thread::sleep(time::Duration::from_secs(2));
             }
         }
     });
 
+    // Main loop to interact with the user
     loop {
-        let action = utils::read_input("¿Qué quieres hacer?\n1. Jugar\n2. Alimentar\n3. Salir");
+        // Ask for user input without blocking the secondary thread
+        let action = utils::read_from_user();
 
         match action.as_str() {
-            "1" | "2" | "3" => {
-                tx.send(action.clone()).unwrap();
-                if action == "3" {
-                    break;
-                }
+            "1" => {
+                // Action to play with the Tamagotchi
+                let mut tamagotchi = tamagotchi.lock().unwrap();
+                tamagotchi.play();
+            }
+            "2" => {
+                // Action to feed the Tamagotchi
+                let mut tamagotchi = tamagotchi.lock().unwrap();
+                tamagotchi.feed();
+            }
+            "3" => {
+                println!("¡Adiós!");
+                break;
             }
             _ => println!("Opción no válida. Inténtalo de nuevo."),
         }
     }
+
 }
+
