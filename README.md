@@ -1,117 +1,123 @@
+# PetBox: Rust Tamagotchi Virtual Pet Simulator 🐾
 
-# Tamagotchi en Rust 🐾
+This is a virtual pet simulator based on the classic Tamagotchi game. The application allows users to care for a virtual pet that has states of hunger and happiness that change over time.
 
-Un simulador de mascota virtual implementado en Rust que simula el clásico juego de Tamagotchi.
+## Description
 
-## Descripción
+This project is an implementation of the famous Tamagotchi game where you need to take care of your virtual pet. The pet has hunger and happiness states that change over time, and you must interact with it to keep it happy and well-fed.
 
-Este proyecto es una implementación del famoso juego Tamagotchi donde debes cuidar de tu mascota virtual. La mascota tiene estados de hambre y felicidad que cambian con el tiempo, y debes interactuar con ella para mantenerla feliz y bien alimentada.
+## Features
 
-## Características
+- **Interactive virtual pet**: Your Tamagotchi has a name, happiness, and hunger levels.
+- **Real-time state system**: States change automatically every second.
+- **Available actions**:
+  - 🎮 Play with your Tamagotchi (increases happiness)
+  - 🍎 Feed your Tamagotchi (reduces hunger)
+  - 👋 Exit the game
+- **Console interface**: Interactive menu and state updated in real-time.
+- **Multithreading system**: Automatic state update without blocking user input.
 
-- **Mascota virtual interactiva**: Tu Tamagotchi tiene nombre, niveles de hambre y felicidad
-- **Sistema de estado en tiempo real**: Los estados cambian automáticamente cada segundo
-- **Acciones disponibles**:
-  - 🎮 Jugar con tu Tamagotchi (aumenta felicidad)
-  - 🍎 Alimentar a tu Tamagotchi (reduce hambre)
-  - 👋 Salir del juego
-- **Interfaz en consola**: Menú interactivo y estado actualizado en tiempo real
-- **Sistema de hilos**: Actualización automática del estado sin bloquear la entrada del usuario
-
-## Estructura del Proyecto
-
+## Project Structure
 ```
 src/
-├── main.rs              # Punto de entrada y lógica principal
-├── constants.rs         # Constantes del juego (valores iniciales, incrementos, etc.)
-├── utils.rs            # Utilidades (entrada de usuario, limpieza de pantalla)
+├── main.rs # Entry point and main logic
+├── constants.rs # Game constants (initial values, increments, etc.)
+├── utils.rs # Utilities (user input, screen clearing)
 └── models/
-    ├── mod.rs          # Módulo de modelos
-    └── tamagotchi.rs   # Estructura y lógica del Tamagotchi
+├── mod.rs # Models module
+└── tamagotchi.rs # Tamagotchi structure and logic
 ```
 
-## Instalación y Ejecución
+## Installation and Execution
 
-### Requisitos
-- Rust (edición 2021 o superior)
+### Requirements
+- Rust (2021 edition or higher)
 - Cargo
 
-### Ejecutar el proyecto
+### Running the project
 ```bash
 cargo run
 ```
+### How to Play
+- Start: Enter the name of your Tamagotchi.
 
-## Cómo Jugar
+- Main Menu: You will see three options:
 
-1. **Inicio**: Introduce el nombre de tu Tamagotchi
-2. **Menú principal**: Verás tres opciones:
-   - `1` - Jugar con tu Tamagotchi
-   - `2` - Alimentar a tu Tamagotchi  
-   - `3` - Salir del juego
-3. **Estado**: El estado de tu mascota se actualiza automáticamente cada segundo
-4. **Cuidado**: Mantén a tu Tamagotchi feliz jugando con él y aliméntalo cuando tenga hambre
+  - 1 - Play with your Tamagotchi
 
-## Mecánicas del Juego
+  - 2 - Feed your Tamagotchi
 
-### Estados
-- **Felicidad**: Comienza en 100, disminuye cuando el Tamagotchi tiene mucha hambre
-- **Hambre**: Comienza en 0, aumenta gradualmente con el tiempo
+  - 3 - Exit the game
 
-### Acciones
-- **Jugar**: Aumenta la felicidad en 10 puntos y puede aumentar ligeramente el hambre
-- **Alimentar**: Reduce el hambre en 10 puntos
-- **Tiempo**: Cada segundo aumenta el hambre en 1 punto
+- State: Your pet's state updates automatically every second.
 
-### Alertas
-- Cuando el hambre supera 80 puntos, tu Tamagotchi estará hambriento y su felicidad comenzará a disminuir
+- Care: Keep your Tamagotchi happy by playing with it and feed it when it's hungry.
 
-## Configuración
+## Game Mechanics
+### States
+- Happiness: Starts at 100, decreases when the Tamagotchi gets very hungry.
 
-Puedes modificar los valores del juego editando las constantes en `src/constants.rs`:
+- Hunger: Starts at 0, gradually increases over time.
 
-```rust
-pub const INITIAL_HUNGER: u32 = 0;           // Hambre inicial
-pub const INITIAL_HAPPINESS: u32 = 100;     // Felicidad inicial
-pub const HUNGER_WARNING: u32 = 80;         // Umbral de hambre crítica
-pub const PLAY_HAPPINESS_INCREASE: u32 = 10; // Aumento de felicidad al jugar
-// ... más constantes
+### Actions
+- Play: Increases happiness by 10 points and may slightly increase hunger.
+
+- Feed: Reduces hunger by 10 points.
+
+- Time: Every second, hunger increases by 1 point.
+
+### Alerts
+- When hunger exceeds 80 points, your Tamagotchi will be hungry, and its happiness will begin to decrease.
+
+### Configuration
+You can modify the game's values by editing the constants in src/constants.rs:
+```
+pub const INITIAL_HUNGER: u32 = 0;           // Initial hunger
+pub const INITIAL_HAPPINESS: u32 = 100;     // Initial happiness
+pub const HUNGER_WARNING: u32 = 80;         // Critical hunger threshold
+pub const PLAY_HAPPINESS_INCREASE: u32 = 10; // Happiness increase from playing
+// ... more constants
 ```
 
-## Arquitectura Técnica
+## Technical Architecture
+### Concurrency
+The project uses Arc<Mutex<T>> to safely share the Tamagotchi state between threads:
 
-### Concurrencia
-El proyecto utiliza `Arc<Mutex<T>>` para compartir el estado del Tamagotchi entre hilos de manera segura:
-- **Hilo principal**: Maneja la entrada del usuario
-- **Hilo secundario**: Actualiza el estado cada segundo y muestra la interfaz
+Main thread: Handles user input.
+
+Secondary thread: Updates the state every second and displays the interface.
 
 ### Modules
-- `models::tamagotchi`: Contiene la estructura `Tamagotchi` y sus métodos
-- `utils`: Funciones de utilidad para entrada/salida
-- `constants`: Valores constantes del juego
+- models::tamagotchi: Contains the Tamagotchi structure and its methods.
+- utils: Utility functions for input/output.
+- constants: Game constant values.
 
-## Contribuir
+### Contributing
+If you want to contribute to the project:
 
-Si quieres contribuir al proyecto:
+- Fork the repository
 
-1. Haz un fork del repositorio
-2. Crea una rama para tu función (`git checkout -b nueva-funcion`)
-3. Haz commit de tus cambios (`git commit -am 'Agregar nueva función'`)
-4. Push a la rama (`git push origin nueva-funcion`)
-5. Crea un Pull Request
+- Create a branch for your feature (git checkout -b new-feature)
 
-## Futuras Mejoras
+- Commit your changes (git commit -am 'Add new feature')
 
-- [ ] Sistema de guardado/carga
-- [ ] Múltiples tipos de comida
-- [ ] Diferentes actividades de juego
-- [ ] Sistema de envejecimiento
-- [ ] Interfaz gráfica
-- [ ] Sonidos y efectos
+- Push to the branch (git push origin new-feature)
 
-## Licencia
+- Create a Pull Request
+### Future Improvements
+- Save/load system
 
-Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+- Multiple food types
 
----
+- Different play activities
 
-¡Disfruta cuidando de tu Tamagotchi virtual! 🎮✨
+- Aging system
+
+- Graphical interface
+
+- Sounds and effects
+
+### License
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+Enjoy taking care of your virtual Tamagotchi! 🎮✨

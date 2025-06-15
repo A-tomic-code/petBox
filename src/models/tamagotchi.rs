@@ -1,7 +1,7 @@
-//! # Módulo Tamagotchi
-//! 
-//! Este módulo contiene la estructura principal `Tamagotchi` y toda la lógica
-//! relacionada con el comportamiento de la mascota virtual.
+//! # Tamagotchi Module
+//!
+//! This module contains the main structure `Tamagotchi` and all the logic
+//! related to the behavior of the virtual pet.
 
 use super::super::constants::{
     HAPPINESS_DECREASE, HUNGER_DECREASE_BIG, HUNGER_DECREASE_SMALL, HUNGER_INCREASE_BIG,
@@ -11,22 +11,6 @@ use super::super::constants::{
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-/// Estructura que representa una mascota virtual Tamagotchi.
-/// 
-/// # Campos
-/// 
-/// * `name` - El nombre de la mascota asignado por el usuario
-/// * `happiness` - Nivel de felicidad (0-100+)
-/// * `hunger` - Nivel de hambre (0-100+, valores más altos = más hambre)
-/// 
-/// # Ejemplo
-/// 
-/// ```
-/// let mut pet = Tamagotchi::new("Buddy".to_string());
-/// pet.play();    // Aumenta felicidad
-/// pet.feed();    // Reduce hambre
-/// pet.tick();    // Actualiza estado por paso de tiempo
-/// ```
 #[derive(Clone)]
 pub struct Tamagotchi {
     pub name: String,
@@ -35,15 +19,15 @@ pub struct Tamagotchi {
 }
 
 impl Tamagotchi {
-    /// Crea un nuevo Tamagotchi con valores iniciales.
-    /// 
-    /// # Argumentos
-    /// 
-    /// * `name` - El nombre que el usuario quiere darle a su mascota
-    /// 
-    /// # Retorna
-    /// 
-    /// * `Self` - Una nueva instancia de Tamagotchi con felicidad máxima y hambre mínima
+    /// Creates a new Tamagotchi with initial values.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name the user wants to give their pet
+    ///
+    /// # Returns
+    ///
+    /// * `Self` - A new instance of Tamagotchi with maximum happiness and minimum hunger
     pub fn new(name: String) -> Self {
         Tamagotchi {
             name,
@@ -52,17 +36,17 @@ impl Tamagotchi {
         }
     }
 
-    /// Jugar con el Tamagotchi aumenta su felicidad.
-    /// 
-    /// Esta acción:
-    /// - Aumenta la felicidad en `PLAY_HAPPINESS_INCREASE` puntos
-    /// - Puede aumentar ligeramente el hambre si está por debajo del umbral
-    /// 
-    /// # Efectos secundarios
-    /// 
-    /// Imprime un mensaje indicando que la mascota está jugando.
+    /// Playing with the Tamagotchi increases its happiness.
+    ///
+    /// This action:
+    /// - Increases happiness by `PLAY_HAPPINESS_INCREASE` points
+    /// - Can slightly increase hunger if below the threshold
+    ///
+    /// # Side Effects
+    ///
+    /// Prints a message indicating the pet is playing.
     pub fn play(&mut self) {
-        println!("{} está jugando!", self.name);
+        println!("{} is playing!", self.name);
 
         self.happiness += PLAY_HAPPINESS_INCREASE;
         if self.hunger < HUNGER_DECREASE_BIG {
@@ -70,17 +54,17 @@ impl Tamagotchi {
         }
     }
 
-    /// Alimentar al Tamagotchi reduce su nivel de hambre.
-    /// 
-    /// Esta acción:
-    /// - Reduce el hambre en `HUNGER_DECREASE_BIG` puntos
-    /// - El hambre no puede bajar de 0
-    /// 
-    /// # Efectos secundarios
-    /// 
-    /// Imprime un mensaje indicando que la mascota está comiendo.
+    /// Feeding the Tamagotchi reduces its hunger level.
+    ///
+    /// This action:
+    /// - Reduces hunger by `HUNGER_DECREASE_BIG` points
+    /// - Hunger cannot go below 0
+    ///
+    /// # Side Effects
+    ///
+    /// Prints a message indicating the pet is eating.
     pub fn feed(&mut self) {
-        println!("{} está comiendo!", self.name);
+        println!("{} is eating!", self.name);
 
         self.hunger = if self.hunger >= HUNGER_INCREASE_BIG {
             self.hunger - HUNGER_DECREASE_BIG
@@ -89,20 +73,20 @@ impl Tamagotchi {
         };
     }
 
-    /// Actualiza el estado del Tamagotchi por el paso del tiempo.
-    /// 
-    /// Este método se llama automáticamente cada segundo y:
-    /// - Aumenta el hambre en `HUNGER_INCREASE_SMALL` 
-    /// - Si el hambre supera `HUNGER_WARNING`, reduce la felicidad
-    /// - Muestra una alerta si la mascota está hambrienta
-    /// 
-    /// # Mecánicas
-    /// 
-    /// - El hambre aumenta constantemente con el tiempo
-    /// - Una mascota hambrienta pierde felicidad gradualmente
+    /// Updates the state of the Tamagotchi over time.
+    ///
+    /// This method is called automatically every second and:
+    /// - Increases hunger by `HUNGER_INCREASE_SMALL`
+    /// - If hunger exceeds `HUNGER_WARNING`, happiness decreases
+    /// - Shows an alert if the pet is hungry
+    ///
+    /// # Mechanics
+    ///
+    /// - Hunger continuously increases over time
+    /// - A hungry pet gradually loses happiness
     pub fn tick(&mut self) {
         if self.hunger > HUNGER_WARNING {
-            println!("{} está hambriento!", self.name);
+            println!("{} is hungry!", self.name);
             self.happiness = if self.happiness >= HAPPINESS_DECREASE {
                 self.happiness - HAPPINESS_DECREASE
             } else {
@@ -113,25 +97,25 @@ impl Tamagotchi {
         self.hunger += HUNGER_INCREASE_SMALL;
     }
 
-    /// Muestra el estado actual del Tamagotchi en la consola.
-    /// 
-    /// Imprime de forma formateada:
-    /// - El nombre de la mascota
-    /// - Su nivel actual de felicidad  
-    /// - Su nivel actual de hambre
-    /// 
-    /// # Formato de salida
-    /// 
+    /// Displays the current state of the Tamagotchi in the console.
+    ///
+    /// It prints formatted:
+    /// - The name of the pet
+    /// - Its current happiness level  
+    /// - Its current hunger level
+    ///
+    /// # Output Format
+    ///
     /// ```text
-    /// Estado de [nombre]
+    /// Status of [name]
     /// --------------------------------
-    /// Felicidad: [valor]
-    /// Hambre: [valor]
+    /// Happiness: [value]
+    /// Hunger: [value]
     /// ```
     pub fn print_state(&self) {
-        println!("\n Estado de {}", self.name);
+        println!("\n Status of {}", self.name);
         println!("--------------------------------\n");
-        println!("Felicidad: {}", self.happiness);
-        println!("Hambre: {}", self.hunger);
+        println!("Happiness: {}", self.happiness);
+        println!("Hunger: {}", self.hunger);
     }
 }

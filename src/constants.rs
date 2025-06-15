@@ -1,56 +1,56 @@
-//! # Módulo de Constantes
+//! # Constants Module
 //! 
-//! Este módulo contiene todas las constantes del juego que definen
-//! el comportamiento y balance del Tamagotchi.
+//! This module contains all the game constants that define
+//! the behavior and balance of the Tamagotchi.
 //! 
-//! ## Categorías de Constantes
+//! ## Categories of Constants
 //! 
-//! - **Hambre**: Valores relacionados con el sistema de hambre
-//! - **Felicidad**: Valores relacionados con el sistema de felicidad  
-//! - **Interfaz**: Opciones del menú principal
+//! - **Hunger**: Values related to the hunger system
+//! - **Happiness**: Values related to the happiness system  
+//! - **Interface**: Options for the main menu
 
-// === CONSTANTES DE HAMBRE ===
+// === HUNGER CONSTANTS ===
 
-/// Nivel inicial de hambre al crear un nuevo Tamagotchi.
-/// Un valor de 0 significa que no tiene hambre al comenzar.
+/// Initial hunger level when creating a new Tamagotchi.
+/// A value of 0 means it has no hunger at the start.
 pub const INITIAL_HUNGER: u32 = 0;
-/// Cantidad en que disminuye el hambre al alimentar al Tamagotchi.
+/// Amount by which hunger decreases when feeding the Tamagotchi.
 pub const HUNGER_DECREASE_BIG: u32 = 10;
 
-/// Cantidad menor de disminución de hambre (no utilizada actualmente).
+/// Smaller amount of hunger decrease (not currently used).
 pub const HUNGER_DECREASE_SMALL: u32 = 5;
 
-/// Cantidad en que puede aumentar el hambre al jugar.
+/// Amount by which hunger can increase when playing.
 pub const HUNGER_INCREASE_BIG: u32 = 5;
 
-/// Cantidad en que aumenta el hambre cada segundo (tick).
+/// Amount by which hunger increases each second (tick).
 pub const HUNGER_INCREASE_SMALL: u32 = 1;
 
-/// Nivel máximo teórico de hambre.
+/// Theoretical maximum hunger level.
 pub const MAX_HUNGER: u32 = 100;
 
-/// Umbral de hambre que activa las alertas y reduce la felicidad.
-/// Cuando el hambre supera este valor, el Tamagotchi estará "hambriento".
+/// Hunger threshold that activates alerts and decreases happiness.
+/// When hunger exceeds this value, the Tamagotchi will be "hungry".
 pub const HUNGER_WARNING: u32 = 80;
 
-// === CONSTANTES DE FELICIDAD ===
+// === HAPPINESS CONSTANTS ===
 
-/// Nivel inicial de felicidad al crear un nuevo Tamagotchi.
-/// Un valor de 100 representa felicidad máxima.
+/// Initial happiness level when creating a new Tamagotchi.
+/// A value of 100 represents maximum happiness.
 pub const INITIAL_HAPPINESS: u32 = 100;
 
-/// Cantidad en que disminuye la felicidad cuando el Tamagotchi está hambriento.
-/// Esta disminución ocurre cada segundo mientras el hambre > HUNGER_WARNING.
+/// Amount by which happiness decreases when the Tamagotchi is hungry.
+/// This decrease occurs every second while hunger > HUNGER_WARNING.
 pub const HAPPINESS_DECREASE: u32 = 5;
 
-/// Cantidad en que aumenta la felicidad al jugar con el Tamagotchi.
+/// Amount by which happiness increases when playing with the Tamagotchi.
 pub const PLAY_HAPPINESS_INCREASE: u32 = 10;
 
-// === CONSTANTES DE INTERFAZ ===
+// === INTERFACE CONSTANTS ===
 
-/// Opciones disponibles en el menú principal del juego.
+/// Available options in the main menu of the game.
 /// 
-/// - **Jugar**: Aumenta la felicidad del Tamagotchi
-/// - **Alimentar**: Reduce el hambre del Tamagotchi
-/// - **Salir**: Termina el juego
-pub const MAIN_MENU_OPTIONS: [&str; 3] = ["Jugar", "Alimentar", "Salir"];
+/// - **Play**: Increases the Tamagotchi's happiness
+/// - **Feed**: Reduces the Tamagotchi's hunger
+/// - **Exit**: Ends the game
+pub const MAIN_MENU_OPTIONS: [&str; 3] = ["Play", "Feed", "Exit"];

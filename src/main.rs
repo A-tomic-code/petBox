@@ -1,20 +1,20 @@
 //! # Tamagotchi Virtual Pet Simulator
-//! 
-//! Este es un simulador de mascota virtual basado en el clásico juego Tamagotchi.
-//! La aplicación permite al usuario cuidar de una mascota virtual que tiene estados
-//! de hambre y felicidad que cambian con el tiempo.
-//! 
-//! ## Arquitectura
-//! 
-//! El programa utiliza dos hilos:
-//! - **Hilo principal**: Maneja la entrada del usuario y las acciones
-//! - **Hilo secundario**: Actualiza el estado del Tamagotchi cada segundo
-//! 
-//! ## Módulos
-//! 
-//! - `constants`: Contiene todas las constantes del juego
-//! - `models`: Contiene la estructura y lógica del Tamagotchi  
-//! - `utils`: Funciones de utilidad para entrada/salida
+//!
+//! This is a virtual pet simulator based on the classic Tamagotchi game.
+//! The application allows the user to care for a virtual pet that has states
+//! of hunger and happiness that change over time.
+//!
+//! ## Architecture
+//!
+//! The program uses two threads:
+//! - **Main Thread**: Handles user input and actions
+//! - **Secondary Thread**: Updates the Tamagotchi state every second
+//!
+//! ## Modules
+//!
+//! - `constants`: Contains all game constants
+//! - `models`: Contains the structure and logic of the Tamagotchi  
+//! - `utils`: Utility functions for input/output
 
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
@@ -25,20 +25,20 @@ mod utils;
 
 use models::tamagotchi::Tamagotchi;
 
-/// Punto de entrada principal de la aplicación Tamagotchi.
-/// 
-/// Esta función:
-/// 1. Inicializa el juego y solicita el nombre de la mascota
-/// 2. Crea un Tamagotchi compartido entre hilos usando Arc<Mutex<T>>
-/// 3. Lanza un hilo secundario para actualizar el estado cada segundo
-/// 4. Ejecuta el bucle principal para manejar las acciones del usuario
+/// Main entry point of the Tamagotchi application.
+///
+/// This function:
+/// 1. Initializes the game and requests the pet's name
+/// 2. Creates a Tamagotchi shared among threads using Arc<Mutex<T>>
+/// 3. Spawns a secondary thread to update the state every second
+/// 4. Executes the main loop to handle user actions
 fn main() {
     thread::sleep(time::Duration::from_secs(2));
     utils::clear_screen();
 
-    println!("Bienvenido a Tamagotchi!");
+    println!("Welcome to Tamagotchi!");
 
-    let pet_name = utils::read_input("Introduce el nombre de tu Tamagotchi:");
+    let pet_name = utils::read_input("Enter your Tamagotchi's name:");
     let tamagotchi = Arc::new(Mutex::new(Tamagotchi::new(pet_name)));
 
     // Spawn a thread to handle the tick for the Tamagotchi
@@ -72,23 +72,23 @@ fn main() {
     }
 }
 
-/// Maneja las acciones del usuario basadas en su entrada.
-/// 
-/// # Argumentos
-/// 
-/// * `action` - La acción seleccionada por el usuario como string
-/// * `tamagotchi` - Referencia al Tamagotchi compartido entre hilos
-/// 
-/// # Retorna
-/// 
-/// * `bool` - `true` si el usuario quiere salir del juego, `false` en caso contrario
-/// 
-/// # Acciones disponibles
-/// 
-/// * "1" - Jugar con el Tamagotchi (aumenta felicidad)
-/// * "2" - Alimentar al Tamagotchi (reduce hambre)  
-/// * "3" - Salir del juego
-/// * Cualquier otra entrada - Muestra mensaje de error
+/// Handles user actions based on their input.
+///
+/// # Arguments
+///
+/// * `action` - The action selected by the user as a string
+/// * `tamagotchi` - Reference to the Tamagotchi shared among threads
+///
+/// # Returns
+///
+/// * `bool` - `true` if the user wants to exit the game, `false` otherwise
+///
+/// # Available Actions
+///
+/// * "1" - Play with the Tamagotchi (increases happiness)
+/// * "2" - Feed the Tamagotchi (reduces hunger)  
+/// * "3" - Exit the game
+/// * Any other input - Displays an error message
 fn handle_user_action(action: &str, tamagotchi: &Arc<Mutex<Tamagotchi>>) -> bool {
     match action {
         "1" => {
@@ -104,11 +104,11 @@ fn handle_user_action(action: &str, tamagotchi: &Arc<Mutex<Tamagotchi>>) -> bool
             false
         }
         "3" => {
-            println!("¡Adiós!");
+            println!("Goodbye!");
             true
         }
         _ => {
-            println!("Opción no válida. Inténtalo de nuevo.");
+            println!("Invalid option. Please try again.");
             false
         }
     }
